@@ -360,7 +360,17 @@ export default function App() {
 
       const totalScore = Math.round((topicScore * 0.35) + (designScore * 0.20) + (methodScore * 0.25) + (dataScore * 0.20));
 
-      return { ...journal, scores: { topic: topicScore, design: designScore, method: methodScore, data: dataScore }, totalScore };
+      // Keyword-Match-Details für Dropdown
+      const keywordMatches_detail = keywords.map(kw => {
+        const normKw = kw.replace(/-/g, ' ');
+        const matched = journal.tags.some(tag => {
+          const normTag = tag.replace(/-/g, ' ');
+          return normTag.includes(normKw) || normKw.includes(normTag);
+        }) || journal.name.toLowerCase().includes(normKw);
+        return { keyword: kw, matched };
+      });
+
+      return { ...journal, scores: { topic: topicScore, design: designScore, method: methodScore, data: dataScore }, totalScore, keywordMatches_detail };
     }).sort((a, b) => b.totalScore - a.totalScore);
   }, [appliedCriteria]);
 
@@ -486,9 +496,23 @@ export default function App() {
                       </a>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                      <FitStat label="Keywords" score={journal.scores.topic} />
-                      <FitStat label="Design" score={journal.scores.design} />
-                      <FitStat label="Methode" score={journal.scores.method} />
+                      <DetailFitStat label="Keywords" score={journal.scores.topic} details={
+                        journal.keywordMatches_detail.length > 0
+                          ? journal.keywordMatches_detail.map(m => ({ name: m.keyword, value: m.matched ? "match" : "kein match", matched: m.matched }))
+                          : [{ name: "Keine Keywords eingegeben", value: "–", matched: null }]
+                      } />
+                      <DetailFitStat label="Design" score={journal.scores.design} details={
+                        Object.entries(TRAIT_MAP.design).map(([name, trait]) => ({
+                          name, value: journal.traits[trait] >= 0.8 ? "hoch" : journal.traits[trait] >= 0.5 ? "mittel" : "niedrig",
+                          matched: name === appliedCriteria.design
+                        }))
+                      } />
+                      <DetailFitStat label="Methode" score={journal.scores.method} details={
+                        Object.entries(TRAIT_MAP.method).map(([name, trait]) => ({
+                          name, value: journal.traits[trait] >= 0.8 ? "hoch" : journal.traits[trait] >= 0.5 ? "mittel" : "niedrig",
+                          matched: name === appliedCriteria.method
+                        }))
+                      } />
                       <DataFitStat score={journal.scores.data} profile={DATA_PROFILES[journal.id]} />
                     </div>
                     <div className="space-y-3">
@@ -521,17 +545,39 @@ export default function App() {
   );
 }
 
-function FitStat({ label, score }) {
+function DetailFitStat({ label, score, details }) {
   const color = getFitColor(score);
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-end">
-        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
+        <button onClick={() => setOpen(!open)} className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 hover:text-indigo-600 transition-colors">
+          {label} {open ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+        </button>
         <span className={`text-xs font-black ${color.text}`}>{Math.round(score)}%</span>
       </div>
       <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
         <div className={`${color.bar} h-full transition-all duration-1000`} style={{ width: `${score}%` }} />
       </div>
+      {open && (
+        <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 mt-1 space-y-1">
+          {details.map((d, i) => {
+            const valueColor = d.value === "hoch" || d.value === "match"
+              ? "text-emerald-600" : d.value === "mittel"
+              ? "text-amber-600" : d.value === "niedrig" || d.value === "kein match"
+              ? "text-red-400" : "text-slate-400";
+            return (
+              <div key={i} className={`flex justify-between items-center text-[10px] ${d.matched === true ? "font-bold" : ""}`}>
+                <span className={`${d.matched === true ? "text-slate-800" : "text-slate-400"} truncate`}>
+                  {d.matched === true ? "→ " : ""}{d.name}
+                </span>
+                <span className={`font-bold ${valueColor}`}>{d.value}</span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
