@@ -1,79 +1,259 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
-  Search, BarChart3, BookOpen, Star, Filter, Info,
-  ExternalLink, Database, Users, TrendingUp,
-  CheckCircle2, AlertTriangle, Hash, Layers, Play, RefreshCw
+  BarChart3, BookOpen, Info,
+  ExternalLink, TrendingUp,
+  Hash, Layers, Play
 } from 'lucide-react';
 
-// Erweiterte Journal-Datenbank
+// Journal-Datenbank (Impact Factors: JCR 2023; VHB: JOURQUAL 3, 2015)
+// Trait-Werte: 0.8 = hoch (stark bevorzugt/haeufig), 0.5 = mittel (akzeptiert/gelegentlich), 0.3 = niedrig (selten/untypisch)
+// Basierend auf Aims & Scope, Author Guidelines und Publikationsmustern 2023-2025
 const JOURNAL_DATABASE = [
   {
     id: 1,
     name: "Journal of Personality and Social Psychology (JPSP)",
-    impactFactor: 7.6, vhb: "A+", category: "Personality",
-    traits: { multiStudy: 1.0, crossSectional: 0.2, assessment: 0.6, wellBeing: 0.8, network: 0.7 },
-    details: { n: "800+", method: "Experimental / Multi-Level / GGM", policy: "High barrier; theory contribution must be groundbreaking." },
+    url: "https://www.apa.org/pubs/journals/psp",
+    impactFactor: 6.4, jcrYear: 2023, vhb: "A", category: "Personality",
+    traits: { multiStudy: 0.8, singleStudy: 0.3, crossSectional: 0.5, longitudinal: 0.5, network: 0.3, sem: 0.5, cfa: 0.3 },
+    details: { n: "800+", method: "Experimental / Multi-Study / Multi-Level", policy: "Multi-study packages strongly preferred. Theory contribution must be groundbreaking. PPID section more open to correlational designs." },
     tags: ["personality", "social", "motivation", "well-being", "theory", "fwb", "financial", "self"]
   },
   {
     id: 2,
     name: "Psychological Assessment",
-    impactFactor: 4.7, vhb: "A", category: "Assessment",
-    traits: { multiStudy: 0.8, crossSectional: 1.0, assessment: 1.0, wellBeing: 0.7, network: 0.9 },
-    details: { n: "300-600", method: "CFA, SEM, Network Analysis", policy: "Excellent for Nomological Networks & Validation." },
+    url: "https://www.apa.org/pubs/journals/pas",
+    impactFactor: 3.7, jcrYear: 2023, vhb: "B", category: "Assessment",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.3, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "300-600", method: "CFA / SEM / Network Analysis", policy: "CFA is the bread-and-butter method. Excellent for nomological networks & validation. Single-study with 1-2 samples is standard." },
     tags: ["assessment", "validity", "scales", "network", "psychometrics", "nomological", "validation"]
   },
   {
     id: 3,
     name: "Journal of Business Research (JBR)",
-    impactFactor: 11.3, vhb: "A", category: "Business",
-    traits: { multiStudy: 0.9, crossSectional: 0.7, assessment: 0.5, wellBeing: 0.6, network: 0.4 },
-    details: { n: "400+", method: "PLS-SEM / Experimental", policy: "High acceptance for FWB in consumer contexts." },
+    url: "https://www.sciencedirect.com/journal/journal-of-business-research",
+    impactFactor: 10.5, jcrYear: 2023, vhb: "B", category: "Business",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.3, network: 0.3, sem: 0.8, cfa: 0.8 },
+    details: { n: "400+", method: "PLS-SEM / CB-SEM / Experimental", policy: "PLS-SEM dominant method. Single-study with cross-sectional survey is standard. Dedicated PLS-SEM special issue (2024)." },
     tags: ["consumer", "marketing", "business", "well-being", "management", "financial"]
   },
   {
     id: 4,
     name: "Journal of Happiness Studies",
-    impactFactor: 4.5, vhb: "B", category: "Well-being",
-    traits: { multiStudy: 0.5, crossSectional: 1.0, assessment: 0.6, wellBeing: 1.0, network: 0.5 },
-    details: { n: "200+", method: "Regression / Path Analysis", policy: "The standard for FWB and life satisfaction." },
-    tags: ["happiness", "well-being", "positive-psychology", "quality-of-life", "subjective"]
+    url: "https://link.springer.com/journal/10902",
+    impactFactor: 3.7, jcrYear: 2023, vhb: "C", category: "Well-being",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.5, network: 0.3, sem: 0.8, cfa: 0.5 },
+    details: { n: "200+", method: "SEM / Regression / Path Analysis", policy: "The standard for FWB and life satisfaction. Single-study is the norm. SEM for mediation models very common." },
+    tags: ["happiness", "well-being", "positive-psychology", "quality-of-life", "subjective", "financial"]
   },
   {
     id: 5,
     name: "European Journal of Psychological Assessment (EJPA)",
-    impactFactor: 3.2, vhb: "B", category: "Assessment",
-    traits: { multiStudy: 0.7, crossSectional: 1.0, assessment: 1.0, wellBeing: 0.5, network: 0.8 },
-    details: { n: "400+", method: "Network Modeling / Invariance", policy: "Looks for methodologically innovative validation studies." },
+    url: "https://econtent.hogrefe.com/journal/ejpa",
+    impactFactor: 2.8, jcrYear: 2023, vhb: "C", category: "Assessment",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.3, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "400+", method: "CFA / Measurement Invariance / Network", policy: "Multistudy Reports are an explicit article type. Prioritizes new measures or advancements of existing measures." },
     tags: ["assessment", "measurement", "cross-cultural", "network", "psychometrics", "validation"]
   },
   {
     id: 6,
     name: "Personality and Individual Differences (PAID)",
-    impactFactor: 3.9, vhb: "B", category: "Personality",
-    traits: { multiStudy: 0.4, crossSectional: 0.9, assessment: 0.8, wellBeing: 0.7, network: 0.7 },
-    details: { n: "250+", method: "Correlational / SEM", policy: "Publishes many network modeling papers; fast turnaround." },
-    tags: ["personality", "traits", "iq", "individual-differences", "fwb", "network"]
+    url: "https://www.sciencedirect.com/journal/personality-and-individual-differences",
+    impactFactor: 3.5, jcrYear: 2023, vhb: "C", category: "Personality",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.3, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "250+", method: "SEM / CFA / Network Analysis", policy: "Single-study with cross-sectional data is standard. Growing number of network papers. Fast turnaround." },
+    tags: ["personality", "traits", "individual-differences", "fwb", "network", "well-being"]
   },
   {
     id: 7,
     name: "Assessment",
-    impactFactor: 4.5, vhb: "A", category: "Assessment",
-    traits: { multiStudy: 0.7, crossSectional: 1.0, assessment: 1.0, wellBeing: 0.4, network: 0.8 },
-    details: { n: "400+", method: "CFA / Scale Development", policy: "Strong focus on clinical and personality assessment." },
+    url: "https://journals.sagepub.com/home/asm",
+    impactFactor: 3.5, jcrYear: 2023, vhb: "B", category: "Assessment",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.5, longitudinal: 0.5, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "400+", method: "CFA / Scale Development / Network", policy: "Development + validation sample (2-study) common. Longitudinal test-retest studies more common than in PAID. Network psychometrics welcome." },
     tags: ["assessment", "measurement", "clinical", "scales", "psychometrics"]
+  },
+  {
+    id: 8,
+    name: "Journal of Consumer Affairs",
+    url: "https://onlinelibrary.wiley.com/journal/17456606",
+    impactFactor: 3.0, jcrYear: 2023, vhb: "B", category: "Consumer",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.5, longitudinal: 0.5, network: 0.3, sem: 0.5, cfa: 0.3 },
+    details: { n: "300+", method: "Regression / Econometric / SEM", policy: "Policy-oriented; panel data and longitudinal surveys valued. Econometric methods (OLS, IV, DiD) alongside SEM." },
+    tags: ["consumer", "financial", "fwb", "well-being", "policy", "household", "debt"]
+  },
+  {
+    id: 9,
+    name: "Journal of Economic Psychology",
+    url: "https://www.sciencedirect.com/journal/journal-of-economic-psychology",
+    impactFactor: 2.8, jcrYear: 2023, vhb: "B", category: "Economics",
+    traits: { multiStudy: 0.5, singleStudy: 0.5, crossSectional: 0.5, longitudinal: 0.5, network: 0.3, sem: 0.5, cfa: 0.3 },
+    details: { n: "300+", method: "Experimental / Regression / SEM", policy: "Methodologically flexible. Genuine mix of experiments, surveys, and panel data. Values causal identification." },
+    tags: ["economic", "financial", "fwb", "decision-making", "behavior", "well-being", "saving"]
+  },
+  {
+    id: 10,
+    name: "Journal of Consumer Psychology",
+    url: "https://myscp.onlinelibrary.wiley.com/journal/15327663",
+    impactFactor: 4.0, jcrYear: 2023, vhb: "A", category: "Consumer",
+    traits: { multiStudy: 0.8, singleStudy: 0.3, crossSectional: 0.8, longitudinal: 0.3, network: 0.3, sem: 0.3, cfa: 0.3 },
+    details: { n: "500+ across studies", method: "Experimental / PROCESS Macro / ANOVA", policy: "3-5 converging experiments expected. Strong internal validity focus. Hayes PROCESS for mediation far more common than latent-variable SEM." },
+    tags: ["consumer", "psychology", "financial", "decision-making", "motivation", "well-being"]
+  },
+  {
+    id: 11,
+    name: "Psychological Methods",
+    url: "https://www.apa.org/pubs/journals/met",
+    impactFactor: 7.1, jcrYear: 2023, vhb: "A", category: "Methods",
+    traits: { multiStudy: 0.5, singleStudy: 0.5, crossSectional: 0.5, longitudinal: 0.5, network: 0.8, sem: 0.8, cfa: 0.5 },
+    details: { n: "Simulation + Empirical", method: "Network Modeling / SEM / Advanced Stats", policy: "Methodological innovation required. Data type is agnostic -- the contribution is the method, not the finding. Premier outlet for network psychometrics." },
+    tags: ["methods", "statistics", "network", "sem", "psychometrics", "modeling", "simulation"]
+  },
+  {
+    id: 12,
+    name: "Multivariate Behavioral Research",
+    url: "https://www.tandfonline.com/journals/hmbr20",
+    impactFactor: 3.7, jcrYear: 2023, vhb: "B", category: "Methods",
+    traits: { multiStudy: 0.5, singleStudy: 0.5, crossSectional: 0.5, longitudinal: 0.5, network: 0.8, sem: 0.8, cfa: 0.8 },
+    details: { n: "Simulation + Empirical", method: "Network Modeling / SEM / CFA / Longitudinal Methods", policy: "Flagship methods journal. Data type agnostic. Foundational network and SEM methodology papers. Strong CFA methods tradition." },
+    tags: ["methods", "statistics", "network", "sem", "longitudinal", "modeling", "multivariate"]
+  },
+  {
+    id: 13,
+    name: "European Journal of Personality",
+    url: "https://journals.sagepub.com/home/erp",
+    impactFactor: 4.2, jcrYear: 2023, vhb: "B", category: "Personality",
+    traits: { multiStudy: 0.5, singleStudy: 0.5, crossSectional: 0.5, longitudinal: 0.5, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "500+", method: "SEM / CFA / Network / Longitudinal", policy: "Values longitudinal and diary designs for personality processes. Multi-study for replicability. Network approaches increasingly published." },
+    tags: ["personality", "traits", "network", "assessment", "individual-differences", "well-being"]
+  },
+  {
+    id: 14,
+    name: "Frontiers in Psychology",
+    url: "https://www.frontiersin.org/journals/psychology",
+    impactFactor: 2.6, jcrYear: 2023, vhb: "C", category: "General",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.5, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "200+", method: "Diverse (SEM, CFA, Network, Regression)", policy: "Open Access mega-journal. No design or method preference. High volume, broad scope. Quant. Psych. section welcomes psychometric methods." },
+    tags: ["general", "well-being", "personality", "assessment", "financial", "fwb", "open-access"]
+  },
+  {
+    id: 15,
+    name: "International Journal of Consumer Studies",
+    url: "https://onlinelibrary.wiley.com/journal/14706431",
+    impactFactor: 8.6, jcrYear: 2023, vhb: "C", category: "Consumer",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.3, network: 0.3, sem: 0.8, cfa: 0.8 },
+    details: { n: "300+", method: "PLS-SEM / CB-SEM / Survey", policy: "Cross-sectional survey with SEM is standard. Two-step approach (CFA then SEM) dominates. International perspective valued." },
+    tags: ["consumer", "financial", "fwb", "well-being", "international", "behavior", "household"]
+  },
+  {
+    id: 16,
+    name: "Social Indicators Research",
+    url: "https://link.springer.com/journal/11205",
+    impactFactor: 3.1, jcrYear: 2023, vhb: "B", category: "Well-being",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.5, network: 0.3, sem: 0.8, cfa: 0.5 },
+    details: { n: "300+", method: "SEM / Regression / Multilevel", policy: "Broad well-being and quality-of-life scope. Cross-national comparative studies valued. SEM and regression dominant." },
+    tags: ["well-being", "quality-of-life", "social", "indicators", "financial", "fwb", "cross-cultural"]
+  },
+  {
+    id: 17,
+    name: "Journal of Research in Personality",
+    url: "https://www.sciencedirect.com/journal/journal-of-research-in-personality",
+    impactFactor: 2.8, jcrYear: 2023, vhb: "B", category: "Personality",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.5, longitudinal: 0.8, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "400+", method: "SEM / CFA / Longitudinal / Network", policy: "Strong tradition of longitudinal personality research. Values personality dynamics and processes. Open to network approaches." },
+    tags: ["personality", "traits", "individual-differences", "well-being", "longitudinal", "assessment"]
+  },
+  {
+    id: 18,
+    name: "Journal of Behavioral and Experimental Finance",
+    url: "https://www.sciencedirect.com/journal/journal-of-behavioral-and-experimental-finance",
+    impactFactor: 4.3, jcrYear: 2023, vhb: "C", category: "Finance",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.5, network: 0.3, sem: 0.5, cfa: 0.3 },
+    details: { n: "300+", method: "Experimental / Regression / SEM", policy: "Behavioral finance meets psychology. Financial decision-making and financial literacy focus. Experiments and surveys both accepted." },
+    tags: ["financial", "fwb", "behavioral", "finance", "decision-making", "literacy", "experimental"]
+  },
+  {
+    id: 19,
+    name: "Journal of Family and Economic Issues",
+    url: "https://link.springer.com/journal/10834",
+    impactFactor: 2.4, jcrYear: 2023, vhb: "C", category: "Economics",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.5, longitudinal: 0.5, network: 0.3, sem: 0.8, cfa: 0.3 },
+    details: { n: "300+", method: "SEM / Regression / Panel Data", policy: "Family financial well-being focus. Publishes FWB, financial stress, and economic hardship research. Panel surveys valued." },
+    tags: ["family", "financial", "fwb", "well-being", "economic", "stress", "household"]
+  },
+  {
+    id: 20,
+    name: "Behavior Research Methods",
+    url: "https://link.springer.com/journal/13428",
+    impactFactor: 4.6, jcrYear: 2023, vhb: "B", category: "Methods",
+    traits: { multiStudy: 0.5, singleStudy: 0.5, crossSectional: 0.5, longitudinal: 0.5, network: 0.8, sem: 0.8, cfa: 0.5 },
+    details: { n: "Simulation + Empirical", method: "Network / SEM / Software Tutorials", policy: "Methods and tools for behavioral research. Software tutorials (R packages) highly valued. Network and SEM tool papers common." },
+    tags: ["methods", "statistics", "network", "software", "modeling", "psychometrics", "tools"]
+  },
+  {
+    id: 21,
+    name: "Structural Equation Modeling",
+    url: "https://www.tandfonline.com/journals/hsem20",
+    impactFactor: 2.4, jcrYear: 2023, vhb: "B", category: "Methods",
+    traits: { multiStudy: 0.5, singleStudy: 0.5, crossSectional: 0.5, longitudinal: 0.5, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "Simulation + Empirical", method: "SEM / CFA / Measurement Invariance", policy: "The dedicated SEM journal. Methodological SEM advances and substantive applications. CFA methodology central." },
+    tags: ["sem", "methods", "statistics", "cfa", "measurement", "invariance", "modeling"]
+  },
+  {
+    id: 22,
+    name: "Current Psychology",
+    url: "https://link.springer.com/journal/12144",
+    impactFactor: 2.5, jcrYear: 2023, vhb: "C", category: "General",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.3, network: 0.5, sem: 0.8, cfa: 0.8 },
+    details: { n: "200+", method: "SEM / CFA / Network / Regression", policy: "Broad psychology scope. High volume, relatively fast review. Accepts network, SEM, and CFA papers across topics." },
+    tags: ["general", "well-being", "personality", "fwb", "financial", "network", "assessment"]
+  },
+  {
+    id: 23,
+    name: "Applied Psychology: An International Review",
+    url: "https://iaap-journals.onlinelibrary.wiley.com/journal/14640597",
+    impactFactor: 4.9, jcrYear: 2023, vhb: "B", category: "Applied",
+    traits: { multiStudy: 0.5, singleStudy: 0.8, crossSectional: 0.5, longitudinal: 0.5, network: 0.3, sem: 0.8, cfa: 0.5 },
+    details: { n: "400+", method: "SEM / Regression / Multilevel", policy: "Applied psychology across work, health, and consumer domains. International samples valued. SEM dominant method." },
+    tags: ["applied", "well-being", "work", "health", "financial", "cross-cultural", "consumer"]
+  },
+  {
+    id: 24,
+    name: "Journal of Financial Counseling and Planning",
+    url: "https://connect.springerpub.com/content/sgrjfcp",
+    impactFactor: 1.8, jcrYear: 2023, vhb: "C", category: "Finance",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.5, longitudinal: 0.5, network: 0.3, sem: 0.5, cfa: 0.3 },
+    details: { n: "200+", method: "Regression / SEM / Survey", policy: "Core FWB journal. Financial counseling, planning, and well-being. Practitioner-relevant research valued." },
+    tags: ["financial", "fwb", "well-being", "counseling", "planning", "literacy", "household"]
+  },
+  {
+    id: 25,
+    name: "International Journal of Wellbeing",
+    url: "https://www.internationaljournalofwellbeing.org",
+    impactFactor: 2.0, jcrYear: 2023, vhb: "C", category: "Well-being",
+    traits: { multiStudy: 0.3, singleStudy: 0.8, crossSectional: 0.8, longitudinal: 0.5, network: 0.3, sem: 0.8, cfa: 0.5 },
+    details: { n: "200+", method: "SEM / Regression / Mixed Methods", policy: "Open access. Dedicated to well-being research across domains including financial well-being. Interdisciplinary welcome." },
+    tags: ["well-being", "happiness", "fwb", "financial", "positive-psychology", "quality-of-life", "open-access"]
   }
 ];
+
+const TRAIT_MAP = {
+  design: { "Multi-Study": "multiStudy", "Single-Study": "singleStudy" },
+  method: { "Network Modeling": "network", "SEM": "sem", "CFA": "cfa" },
+  dataType: { "Cross-Sectional": "crossSectional", "Longitudinal": "longitudinal" }
+};
+
+function getFitColor(score) {
+  if (score >= 70) return { bar: "bg-emerald-500", text: "text-emerald-600", bg: "bg-emerald-50" };
+  if (score >= 40) return { bar: "bg-amber-400", text: "text-amber-600", bg: "bg-amber-50" };
+  return { bar: "bg-red-400", text: "text-red-500", bg: "bg-red-50" };
+}
 
 export default function App() {
   const [topicInput, setTopicInput] = useState("Financial Well-being, Nomological Network, Assessment");
   const [design, setDesign] = useState("Multi-Study");
   const [method, setMethod] = useState("Network Modeling");
   const [dataType, setDataType] = useState("Cross-Sectional");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
 
-  // Applied criteria state
   const [appliedCriteria, setAppliedCriteria] = useState({
     topic: "Financial Well-being, Nomological Network, Assessment",
     design: "Multi-Study",
@@ -82,16 +262,12 @@ export default function App() {
   });
 
   const handleSearch = () => {
-    setIsSearching(true);
-    setTimeout(() => {
-      setAppliedCriteria({
-        topic: topicInput,
-        design: design,
-        method: method,
-        dataType: dataType
-      });
-      setIsSearching(false);
-    }, 500);
+    setAppliedCriteria({
+      topic: topicInput,
+      design,
+      method,
+      dataType
+    });
   };
 
   const keywords = useMemo(() => {
@@ -99,28 +275,36 @@ export default function App() {
   }, [appliedCriteria.topic]);
 
   const results = useMemo(() => {
+    const methodTrait = TRAIT_MAP.method[appliedCriteria.method];
+    const dataTrait = TRAIT_MAP.dataType[appliedCriteria.dataType];
+
     return JOURNAL_DATABASE.map(journal => {
-      // 1. Topic Fit
       let keywordMatches = 0;
       keywords.forEach(kw => {
         const normKw = kw.replace(/-/g, ' ');
         const hasMatch = journal.tags.some(tag => {
           const normTag = tag.replace(/-/g, ' ');
           return normTag.includes(normKw) || normKw.includes(normTag);
-        }) || journal.name.toLowerCase().includes(kw);
+        }) || journal.name.toLowerCase().includes(normKw);
         if (hasMatch) keywordMatches++;
       });
       const topicScore = keywords.length > 0 ? (keywordMatches / keywords.length) * 100 : 50;
 
-      // 2. Design Fit
-      const designScore = (appliedCriteria.design === "Multi-Study" ? journal.traits.multiStudy : 0.6) * 100;
+      // Design Fit: asymmetrisch -- Multi-Study ist nie ein Nachteil
+      // Multi-Study gewaehlt: Journals die es bevorzugen (0.8) → 80%, Rest → 50% (neutral, nie rot)
+      // Single-Study gewaehlt: Journals die es akzeptieren (0.8) → 80%,
+      //   Journals die Multi-Study verlangen (0.8 multiStudy) → 30% (Risiko)
+      let designScore;
+      if (appliedCriteria.design === "Multi-Study") {
+        // Multi-Study schadet nie: minimum 50%, Bonus wenn bevorzugt
+        designScore = Math.max(journal.traits.multiStudy, 0.5) * 100;
+      } else {
+        // Single-Study: riskant bei Journals die Multi-Study verlangen
+        designScore = journal.traits.singleStudy * 100;
+      }
 
-      // 3. Method Fit
-      const methodScore = (appliedCriteria.method === "Network Modeling" ? journal.traits.network : 0.6) * 100;
-
-      // 4. Data Fit
-      const dataScore = (appliedCriteria.dataType === "Cross-Sectional" ? journal.traits.crossSectional : 0.6) * 100;
-
+      const methodScore = (journal.traits[methodTrait] ?? 0.5) * 100;
+      const dataScore = (journal.traits[dataTrait] ?? 0.5) * 100;
       const totalScore = Math.round((topicScore * 0.35) + (designScore * 0.20) + (methodScore * 0.25) + (dataScore * 0.20));
 
       return { ...journal, scores: { topic: topicScore, design: designScore, method: methodScore, data: dataScore }, totalScore };
@@ -139,7 +323,7 @@ export default function App() {
           </div>
           <h1 className="text-6xl font-black tracking-tighter mb-6">Journal Strategy Dashboard</h1>
           <p className="text-xl text-indigo-200/80 max-w-3xl leading-relaxed">
-            Identifiziere den optimalen Fit für dein FWB Paper basierend auf Thema, Design und Methode.
+            Identifiziere den optimalen Fit fuer dein FWB Paper basierend auf Thema, Design und Methode.
           </p>
         </div>
       </header>
@@ -188,28 +372,38 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex justify-center border-t border-slate-100 pt-8">
+          <div className="flex items-center justify-center gap-6 border-t border-slate-100 pt-8">
             <button
               onClick={handleSearch}
-              disabled={isSearching}
               className="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black text-lg flex items-center gap-3 hover:bg-indigo-700 transition-all shadow-xl"
             >
-              {isSearching ? <RefreshCw className="animate-spin" /> : <Play fill="currentColor" />}
-              {isSearching ? 'Wird berechnet...' : 'Jetzt vergleichen'}
+              <Play fill="currentColor" />
+              Jetzt vergleichen
             </button>
+            <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400">
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" /> Hoch</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-400 inline-block" /> Mittel</span>
+              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-400 inline-block" /> Niedrig</span>
+            </div>
           </div>
         </div>
 
+        <p className="text-xs text-slate-400 text-center mb-6">
+          {results.length} Journals gefunden &middot; Impact Factors: JCR 2023 &middot; Rankings: VHB-JOURQUAL 3
+        </p>
+
         <div className="grid gap-8">
-          {results.filter(j => j.name.toLowerCase().includes(searchTerm.toLowerCase())).map(journal => (
+          {results.map(journal => {
+            const totalColor = getFitColor(journal.totalScore);
+            return (
             <div key={journal.id} className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col lg:flex-row hover:shadow-xl transition-all">
-              <div className="lg:w-72 bg-slate-50 p-10 flex flex-col items-center justify-center border-r border-slate-100">
-                <div className="text-6xl font-black text-slate-800 tracking-tighter">{journal.totalScore}%</div>
+              <div className={`lg:w-72 p-10 flex flex-col items-center justify-center border-r border-slate-100 ${totalColor.bg}`}>
+                <div className={`text-6xl font-black tracking-tighter ${totalColor.text}`}>{journal.totalScore}%</div>
                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Match Index</div>
                 <div className="mt-8 pt-8 border-t border-slate-200 w-full flex justify-around text-center">
                   <div>
                     <div className="text-lg font-black">{journal.impactFactor}</div>
-                    <div className="text-[8px] font-bold text-slate-400 uppercase">Impact</div>
+                    <div className="text-[8px] font-bold text-slate-400 uppercase">IF {journal.jcrYear}</div>
                   </div>
                   <div>
                     <div className="text-lg font-black text-indigo-600">{journal.vhb}</div>
@@ -223,7 +417,9 @@ export default function App() {
                     <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-[10px] font-black rounded-full uppercase tracking-widest mb-2 inline-block">{journal.category}</span>
                     <h3 className="text-3xl font-black text-slate-900">{journal.name}</h3>
                   </div>
-                  <ExternalLink size={24} className="text-slate-300" />
+                  <a href={journal.url} target="_blank" rel="noopener noreferrer" className="text-slate-300 hover:text-indigo-600 transition-colors" title="Journal Homepage">
+                    <ExternalLink size={24} />
+                  </a>
                 </div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                   <FitStat label="Keywords" score={journal.scores.topic} />
@@ -237,7 +433,8 @@ export default function App() {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </main>
     </div>
@@ -245,14 +442,15 @@ export default function App() {
 }
 
 function FitStat({ label, score }) {
+  const color = getFitColor(score);
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-end">
         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</span>
-        <span className="text-xs font-black">{Math.round(score)}%</span>
+        <span className={`text-xs font-black ${color.text}`}>{Math.round(score)}%</span>
       </div>
       <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-        <div className="bg-indigo-600 h-full transition-all duration-1000" style={{ width: `${score}%` }} />
+        <div className={`${color.bar} h-full transition-all duration-1000`} style={{ width: `${score}%` }} />
       </div>
     </div>
   );
