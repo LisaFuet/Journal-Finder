@@ -236,6 +236,36 @@ const JOURNAL_DATABASE = [
   }
 ];
 
+// Geschätzte Verteilung der Datenarten pro Journal (basierend auf Publikationsmustern 2023-2025)
+// Werte in Prozent, summieren sich auf ~100%
+const DATA_PROFILES = {
+  1:  { "Cross-Sectional": 28, "Experimental": 45, "Longitudinal": 12, "Panel": 4, "ESM/Diary": 6, "Andere": 5 },
+  2:  { "Cross-Sectional": 60, "Longitudinal": 17, "Experimental": 6, "Panel": 4, "ESM/Diary": 3, "Andere": 10 },
+  3:  { "Cross-Sectional": 50, "Experimental": 25, "Longitudinal": 7, "Panel": 6, "ESM/Diary": 1, "Andere": 11 },
+  4:  { "Cross-Sectional": 55, "Longitudinal": 17, "Experimental": 7, "Panel": 12, "ESM/Diary": 4, "Andere": 5 },
+  5:  { "Cross-Sectional": 65, "Longitudinal": 12, "Experimental": 4, "Panel": 2, "ESM/Diary": 3, "Andere": 14 },
+  6:  { "Cross-Sectional": 60, "Experimental": 17, "Longitudinal": 7, "Panel": 3, "ESM/Diary": 4, "Andere": 9 },
+  7:  { "Cross-Sectional": 60, "Longitudinal": 17, "Experimental": 4, "Panel": 3, "ESM/Diary": 5, "Andere": 11 },
+  8:  { "Cross-Sectional": 35, "Longitudinal": 15, "Experimental": 15, "Panel": 10, "ESM/Diary": 0, "Andere": 25 },
+  9:  { "Cross-Sectional": 10, "Experimental": 55, "Meta-Analyse": 20, "Longitudinal": 5, "ESM/Diary": 0, "Andere": 10 },
+  10: { "Experimental": 65, "Cross-Sectional": 10, "Review/Konzept": 20, "Longitudinal": 3, "ESM/Diary": 0, "Andere": 2 },
+  11: { "Simulation": 40, "Tutorial/Methodik": 25, "Meta-Analyse": 15, "Empirisch": 10, "Review": 10 },
+  12: { "Simulation": 45, "Tutorial/Methodik": 20, "Empirisch (longitudinal)": 15, "Empirisch (cross-sect.)": 10, "Review": 10 },
+  13: { "Longitudinal": 40, "Cross-Sectional": 15, "ESM/Diary": 15, "Meta-Analyse": 10, "Psychometrie": 10, "Andere": 10 },
+  14: { "Cross-Sectional": 50, "Experimental": 20, "Review": 10, "Longitudinal": 5, "Skalenvalidierung": 5, "Andere": 10 },
+  15: { "Cross-Sectional": 52, "Experimental": 22, "Longitudinal": 8, "Panel": 5, "Andere": 13 },
+  16: { "Cross-Sectional": 37, "Panel": 27, "Longitudinal": 18, "Experimental": 3, "Andere": 15 },
+  17: { "Longitudinal": 30, "Cross-Sectional": 27, "ESM/Diary": 12, "Experimental": 12, "Andere": 19 },
+  18: { "Experimental": 45, "Cross-Sectional": 18, "Panel": 17, "Longitudinal": 8, "Andere": 12 },
+  19: { "Cross-Sectional": 37, "Panel": 27, "Longitudinal": 18, "Experimental": 3, "Andere": 15 },
+  20: { "Simulation/Tools": 50, "Experimental": 27, "Cross-Sectional": 12, "Andere": 11 },
+  21: { "Simulation/Methodik": 60, "Cross-Sectional": 12, "Longitudinal": 12, "Andere": 16 },
+  22: { "Cross-Sectional": 65, "Experimental": 12, "Longitudinal": 8, "Andere": 15 },
+  23: { "Cross-Sectional": 37, "Longitudinal": 22, "Experimental": 12, "ESM/Diary": 8, "Andere": 21 },
+  24: { "Cross-Sectional": 55, "Panel": 17, "Longitudinal": 12, "Experimental": 6, "Andere": 10 },
+  25: { "Cross-Sectional": 50, "Longitudinal": 12, "Experimental": 12, "Andere": 26 },
+};
+
 const TRAIT_MAP = {
   design: {
     "Multi-Study (3+)": "multiStudy",
@@ -455,7 +485,7 @@ export default function App() {
                       <FitStat label="Keywords" score={journal.scores.topic} />
                       <FitStat label="Design" score={journal.scores.design} />
                       <FitStat label="Methode" score={journal.scores.method} />
-                      <FitStat label="Datenart" score={journal.scores.data} />
+                      <DataFitStat score={journal.scores.data} profile={DATA_PROFILES[journal.id]} />
                     </div>
                     <div className="space-y-3">
                       <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-start gap-3">
@@ -498,6 +528,44 @@ function FitStat({ label, score }) {
       <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
         <div className={`${color.bar} h-full transition-all duration-1000`} style={{ width: `${score}%` }} />
       </div>
+    </div>
+  );
+}
+
+function DataFitStat({ score, profile }) {
+  const color = getFitColor(score);
+  const [open, setOpen] = useState(false);
+  const sorted = profile ? Object.entries(profile).sort((a, b) => b[1] - a[1]) : [];
+  const barColors = ["bg-indigo-500", "bg-indigo-400", "bg-indigo-300", "bg-slate-300", "bg-slate-200", "bg-slate-100"];
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-end">
+        <button onClick={() => setOpen(!open)} className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 hover:text-indigo-600 transition-colors">
+          Datenart {open ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+        </button>
+        <span className={`text-xs font-black ${color.text}`}>{Math.round(score)}%</span>
+      </div>
+      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+        <div className={`${color.bar} h-full transition-all duration-1000`} style={{ width: `${score}%` }} />
+      </div>
+      {open && profile && (
+        <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 mt-1">
+          <p className="text-[9px] font-bold text-slate-400 uppercase mb-2">Publikationsprofil (geschätzt, 2023-2025)</p>
+          <div className="space-y-1.5">
+            {sorted.map(([type, pct], i) => (
+              <div key={type} className="flex items-center gap-2">
+                <span className="text-[10px] text-slate-500 w-28 truncate">{type}</span>
+                <div className="flex-1 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                  <div className={`${barColors[Math.min(i, barColors.length - 1)]} h-full rounded-full`} style={{ width: `${pct}%` }} />
+                </div>
+                <span className="text-[10px] font-bold text-slate-500 w-8 text-right">{pct}%</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-[8px] text-slate-400 mt-2 italic">Basierend auf Editorial-Profil und Publikationsmustern. Keine exakte Auszählung.</p>
+        </div>
+      )}
     </div>
   );
 }
