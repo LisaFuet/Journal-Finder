@@ -378,19 +378,14 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center justify-center gap-6 border-t border-slate-100 pt-8">
+          <div className="flex justify-center border-t border-slate-100 pt-6">
             <button
               onClick={handleSearch}
-              className="bg-indigo-600 text-white px-12 py-5 rounded-2xl font-black text-lg flex items-center gap-3 hover:bg-indigo-700 transition-all shadow-xl"
+              className="bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg"
             >
-              <Play fill="currentColor" />
+              <Play size={16} fill="currentColor" />
               Jetzt vergleichen
             </button>
-            <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400">
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-emerald-500 inline-block" /> Hoch</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-amber-400 inline-block" /> Mittel</span>
-              <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-red-400 inline-block" /> Niedrig</span>
-            </div>
           </div>
         </div>
 
