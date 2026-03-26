@@ -319,7 +319,7 @@ export default function App() {
           </div>
           <h1 className="text-6xl font-black tracking-tighter mb-6">Journal Finder</h1>
           <p className="text-xl text-indigo-200/80 max-w-3xl leading-relaxed">
-            Finde das passende Journal fuer dein Paper -- basierend auf Thema, Design, Methode und Datenart.
+            Finde das passende Journal für dein Paper — basierend auf Thema, Design, Methode und Datenart.
           </p>
         </div>
       </header>
