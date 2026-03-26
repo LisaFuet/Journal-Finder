@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   BarChart3, BookOpen, Info,
   ExternalLink, TrendingUp,
-  Hash, Layers, Play
+  Hash, Layers, Play, Lightbulb, HelpCircle, ChevronDown, ChevronUp
 } from 'lucide-react';
 
 // Journal-Datenbank (Impact Factors: JCR 2023; VHB: JOURQUAL 3, 2015)
@@ -14,7 +14,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.apa.org/pubs/journals/psp",
     impactFactor: 6.4, jcrYear: 2023, vhb: "A", category: "Personality",
     traits: { multiStudy: 0.8, twoStudy: 0.5, singleStudy: 0.3, metaAnalysis: 0.3, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.8, panel: 0.3, esm: 0.5, network: 0.3, sem: 0.5, cfa: 0.3, regression: 0.5, plsSem: 0.3, multilevel: 0.8, irt: 0.3, qualitative: 0.3 },
-    details: { method: "Experimental / Multi-Study / Multi-Level", policy: "Multi-study packages strongly preferred. Theory contribution must be groundbreaking. PPID section more open to correlational designs." },
+    details: { method: "Experimental / Multi-Study / Multi-Level", policy: "Multi-study packages strongly preferred. Theory contribution must be groundbreaking. PPID section more open to correlational designs.",
+      framingTip: "Frame als grundlegenden Theoriebeitrag mit klar abgeleiteten Hypothesen. Mindestens 3 Studien mit konvergierender Evidenz. Betone den Beitrag zur psychologischen Theorie, nicht nur empirische Ergebnisse." },
     tags: ["personality", "social", "motivation", "well-being", "theory", "fwb", "financial", "self", "emotion", "attitudes", "cognition", "behavior", "intergroup"]
   },
   {
@@ -22,7 +23,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.apa.org/pubs/journals/pas",
     impactFactor: 3.7, jcrYear: 2023, vhb: "B", category: "Assessment",
     traits: { multiStudy: 0.5, twoStudy: 0.8, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.8, longitudinal: 0.3, experimental: 0.3, panel: 0.3, esm: 0.3, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.5, plsSem: 0.3, multilevel: 0.5, irt: 0.8, qualitative: 0.3 },
-    details: { method: "CFA / SEM / Network Analysis / IRT", policy: "CFA is the bread-and-butter method. Excellent for nomological networks & validation. Single-study with 1-2 samples is standard." },
+    details: { method: "CFA / SEM / Network Analysis / IRT", policy: "CFA is the bread-and-butter method. Excellent for nomological networks & validation. Single-study with 1-2 samples is standard.",
+      framingTip: "Stelle die psychometrische Qualität in den Vordergrund: Faktorstruktur, Reliabilität, konvergente/diskriminante Validität. Nutze mindestens eine CFA und berichte Measurement Invariance wenn möglich." },
     tags: ["assessment", "validity", "scales", "network", "psychometrics", "nomological", "validation", "clinical", "measurement", "reliability"]
   },
   {
@@ -30,7 +32,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.sciencedirect.com/journal/journal-of-business-research",
     impactFactor: 10.5, jcrYear: 2023, vhb: "B", category: "Business",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.5, crossSectional: 0.8, longitudinal: 0.3, experimental: 0.5, panel: 0.3, esm: 0.3, network: 0.3, sem: 0.8, cfa: 0.8, regression: 0.8, plsSem: 0.8, multilevel: 0.5, irt: 0.3, qualitative: 0.5 },
-    details: { method: "PLS-SEM / CB-SEM / Experimental", policy: "PLS-SEM dominant method. Single-study with cross-sectional survey is standard. Dedicated PLS-SEM special issue (2024)." },
+    details: { method: "PLS-SEM / CB-SEM / Experimental", policy: "PLS-SEM dominant method. Single-study with cross-sectional survey is standard. Dedicated PLS-SEM special issue (2024).",
+      framingTip: "Betone die Praxisrelevanz und Managementimplikationen. Nutze PLS-SEM oder CB-SEM. Formuliere klare 'managerial implications' am Ende. Internationale Stichproben sind ein Plus." },
     tags: ["consumer", "marketing", "business", "well-being", "management", "financial", "strategy", "innovation", "organizational", "sustainability", "entrepreneurship"]
   },
   {
@@ -38,7 +41,8 @@ const JOURNAL_DATABASE = [
     url: "https://link.springer.com/journal/10902",
     impactFactor: 3.7, jcrYear: 2023, vhb: "C", category: "Well-being",
     traits: { multiStudy: 0.3, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.5, crossSectional: 0.8, longitudinal: 0.5, experimental: 0.3, panel: 0.5, esm: 0.5, network: 0.3, sem: 0.8, cfa: 0.5, regression: 0.8, plsSem: 0.3, multilevel: 0.5, irt: 0.3, qualitative: 0.5 },
-    details: { method: "SEM / Regression / Path Analysis", policy: "The standard for well-being and life satisfaction research. Single-study is the norm. SEM for mediation models very common." },
+    details: { method: "SEM / Regression / Path Analysis", policy: "The standard for well-being and life satisfaction research. Single-study is the norm. SEM for mediation models very common.",
+      framingTip: "Verankere das Paper in der Well-being-Literatur (Diener, Ryan & Deci). Nutze etablierte Well-being-Maße (SWLS, PANAS, WHO-5). Mediationsmodelle via SEM sind ideal." },
     tags: ["happiness", "well-being", "positive-psychology", "quality-of-life", "subjective", "financial", "life-satisfaction", "flourishing", "eudaimonic", "hedonic"]
   },
   {
@@ -46,7 +50,8 @@ const JOURNAL_DATABASE = [
     url: "https://econtent.hogrefe.com/journal/ejpa",
     impactFactor: 2.8, jcrYear: 2023, vhb: "C", category: "Assessment",
     traits: { multiStudy: 0.5, twoStudy: 0.8, singleStudy: 0.8, metaAnalysis: 0.3, mixedMethods: 0.3, crossSectional: 0.8, longitudinal: 0.3, experimental: 0.3, panel: 0.3, esm: 0.3, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.5, plsSem: 0.3, multilevel: 0.5, irt: 0.8, qualitative: 0.3 },
-    details: { method: "CFA / Measurement Invariance / Network / IRT", policy: "Multistudy Reports are an explicit article type. Prioritizes new measures or advancements of existing measures." },
+    details: { method: "CFA / Measurement Invariance / Network / IRT", policy: "Multistudy Reports are an explicit article type. Prioritizes new measures or advancements of existing measures.",
+      framingTip: "Fokussiere auf Skalenentwicklung oder -weiterentwicklung. Measurement Invariance über Gruppen/Kulturen ist ein Alleinstellungsmerkmal. Vermeide reine Übersetzungsstudien ohne neue Erkenntnisse." },
     tags: ["assessment", "measurement", "cross-cultural", "network", "psychometrics", "validation", "invariance", "reliability"]
   },
   {
@@ -54,7 +59,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.sciencedirect.com/journal/personality-and-individual-differences",
     impactFactor: 3.5, jcrYear: 2023, vhb: "C", category: "Personality",
     traits: { multiStudy: 0.3, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.8, longitudinal: 0.3, experimental: 0.3, panel: 0.3, esm: 0.3, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.8, plsSem: 0.3, multilevel: 0.5, irt: 0.5, qualitative: 0.3 },
-    details: { method: "SEM / CFA / Network Analysis / Regression", policy: "Single-study with cross-sectional data is standard. Growing number of network papers. Fast turnaround." },
+    details: { method: "SEM / CFA / Network Analysis / Regression", policy: "Single-study with cross-sectional data is standard. Growing number of network papers. Fast turnaround.",
+      framingTip: "Positioniere als Beitrag zu individuellen Unterschieden. Eine cross-sektionale Studie mit N>250 reicht. Network-Analysen und Persönlichkeits-Korrelate sind willkommen. Kurze Artikel (6000-8000 Wörter)." },
     tags: ["personality", "traits", "individual-differences", "fwb", "network", "well-being", "dark-triad", "intelligence", "self-esteem", "emotion-regulation"]
   },
   {
@@ -62,7 +68,8 @@ const JOURNAL_DATABASE = [
     url: "https://journals.sagepub.com/home/asm",
     impactFactor: 3.5, jcrYear: 2023, vhb: "B", category: "Assessment",
     traits: { multiStudy: 0.5, twoStudy: 0.8, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.3, panel: 0.3, esm: 0.3, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.5, plsSem: 0.3, multilevel: 0.5, irt: 0.8, qualitative: 0.3 },
-    details: { method: "CFA / Scale Development / Network / IRT", policy: "Development + validation sample (2-study) common. Longitudinal test-retest welcome. Network psychometrics and IRT growing." },
+    details: { method: "CFA / Scale Development / Network / IRT", policy: "Development + validation sample (2-study) common. Longitudinal test-retest welcome. Network psychometrics and IRT growing.",
+      framingTip: "Ideal für Development-Sample + Validation-Sample Design. Berichte Test-Retest-Reliabilität wenn möglich. Klinische und Persönlichkeits-Assessment-Relevanz betonen." },
     tags: ["assessment", "measurement", "clinical", "scales", "psychometrics", "diagnostic", "personality", "validity"]
   },
   {
@@ -70,7 +77,8 @@ const JOURNAL_DATABASE = [
     url: "https://onlinelibrary.wiley.com/journal/17456606",
     impactFactor: 3.0, jcrYear: 2023, vhb: "B", category: "Consumer",
     traits: { multiStudy: 0.3, twoStudy: 0.3, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.5, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.5, panel: 0.8, esm: 0.3, network: 0.3, sem: 0.5, cfa: 0.3, regression: 0.8, plsSem: 0.3, multilevel: 0.5, irt: 0.3, qualitative: 0.5 },
-    details: { method: "Regression / Econometric / SEM / Panel", policy: "Policy-oriented; panel data and longitudinal surveys valued. Econometric methods (OLS, IV, DiD) alongside SEM." },
+    details: { method: "Regression / Econometric / SEM / Panel", policy: "Policy-oriented; panel data and longitudinal surveys valued. Econometric methods (OLS, IV, DiD) alongside SEM.",
+      framingTip: "Frame als Policy-relevante Forschung. Nutze Sekundärdaten (SCF, PSID, SOEP) wenn möglich. Betone Implikationen für Verbraucherschutz und Financial Literacy. Ökonometrische Methoden bevorzugt." },
     tags: ["consumer", "financial", "fwb", "well-being", "policy", "household", "debt", "literacy", "protection", "vulnerability"]
   },
   {
@@ -78,7 +86,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.sciencedirect.com/journal/journal-of-economic-psychology",
     impactFactor: 2.8, jcrYear: 2023, vhb: "B", category: "Economics",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.5, metaAnalysis: 0.5, mixedMethods: 0.5, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.8, panel: 0.5, esm: 0.3, network: 0.3, sem: 0.5, cfa: 0.3, regression: 0.8, plsSem: 0.3, multilevel: 0.5, irt: 0.3, qualitative: 0.3 },
-    details: { method: "Experimental / Regression / SEM", policy: "Methodologically flexible. Genuine mix of experiments, surveys, and panel data. Values causal identification." },
+    details: { method: "Experimental / Regression / SEM", policy: "Methodologically flexible. Genuine mix of experiments, surveys, and panel data. Values causal identification.",
+      framingTip: "Verknüpfe Psychologie mit ökonomischem Verhalten. Kausale Identifikation betonen (Experimente, IV, DiD). Behavioral-Economics-Framing (Kahneman, Thaler) stärkt das Paper." },
     tags: ["economic", "financial", "fwb", "decision-making", "behavior", "well-being", "saving", "nudging", "behavioral-economics", "tax"]
   },
   {
@@ -86,7 +95,8 @@ const JOURNAL_DATABASE = [
     url: "https://myscp.onlinelibrary.wiley.com/journal/15327663",
     impactFactor: 4.0, jcrYear: 2023, vhb: "A", category: "Consumer",
     traits: { multiStudy: 0.8, twoStudy: 0.5, singleStudy: 0.3, metaAnalysis: 0.3, mixedMethods: 0.3, crossSectional: 0.8, longitudinal: 0.3, experimental: 0.8, panel: 0.3, esm: 0.3, network: 0.3, sem: 0.3, cfa: 0.3, regression: 0.8, plsSem: 0.3, multilevel: 0.3, irt: 0.3, qualitative: 0.3 },
-    details: { method: "Experimental / PROCESS Macro / ANOVA", policy: "3-5 converging experiments expected. Strong internal validity focus. Hayes PROCESS for mediation far more common than latent-variable SEM." },
+    details: { method: "Experimental / PROCESS Macro / ANOVA", policy: "3-5 converging experiments expected. Strong internal validity focus. Hayes PROCESS for mediation far more common than latent-variable SEM.",
+      framingTip: "Baue 3-5 saubere Experimente mit klarer interner Validität. Nutze PROCESS Macro für Mediation/Moderation. Jede Studie muss einen spezifischen Aspekt der Theorie testen." },
     tags: ["consumer", "psychology", "financial", "decision-making", "motivation", "well-being", "persuasion", "judgment", "attitudes", "branding"]
   },
   {
@@ -94,7 +104,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.apa.org/pubs/journals/met",
     impactFactor: 7.1, jcrYear: 2023, vhb: "A", category: "Methods",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.5, metaAnalysis: 0.8, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.5, panel: 0.5, esm: 0.5, network: 0.8, sem: 0.8, cfa: 0.5, regression: 0.5, plsSem: 0.3, multilevel: 0.8, irt: 0.8, qualitative: 0.3 },
-    details: { method: "Network Modeling / SEM / IRT / Meta-Analysis", policy: "Methodological innovation required. Data type agnostic. Premier outlet for network psychometrics and advanced methods." },
+    details: { method: "Network Modeling / SEM / IRT / Meta-Analysis", policy: "Methodological innovation required. Data type agnostic. Premier outlet for network psychometrics and advanced methods.",
+      framingTip: "Der Beitrag muss methodisch innovativ sein — nicht nur eine Anwendung. Zeige, dass deine Methode ein bestehendes Problem löst. Simulation + empirische Illustration ist das Standardformat." },
     tags: ["methods", "statistics", "network", "sem", "psychometrics", "modeling", "simulation", "meta-analysis", "bayesian", "replication"]
   },
   {
@@ -102,7 +113,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.tandfonline.com/journals/hmbr20",
     impactFactor: 3.7, jcrYear: 2023, vhb: "B", category: "Methods",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.5, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.5, panel: 0.5, esm: 0.5, network: 0.8, sem: 0.8, cfa: 0.8, regression: 0.5, plsSem: 0.3, multilevel: 0.8, irt: 0.8, qualitative: 0.3 },
-    details: { method: "Network / SEM / CFA / Multilevel / IRT", policy: "Flagship methods journal. Data type agnostic. Foundational network, SEM, and CFA methodology papers." },
+    details: { method: "Network / SEM / CFA / Multilevel / IRT", policy: "Flagship methods journal. Data type agnostic. Foundational network, SEM, and CFA methodology papers.",
+      framingTip: "Fokussiere auf methodische Weiterentwicklung multivariater Verfahren. Monte-Carlo-Simulationen zur Evaluation sind Standard. Empirische Illustration mit realen Daten ergänzen." },
     tags: ["methods", "statistics", "network", "sem", "longitudinal", "modeling", "multivariate", "latent", "growth-curve", "mixture"]
   },
   {
@@ -110,7 +122,8 @@ const JOURNAL_DATABASE = [
     url: "https://journals.sagepub.com/home/erp",
     impactFactor: 4.2, jcrYear: 2023, vhb: "B", category: "Personality",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.5, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.5, panel: 0.5, esm: 0.8, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.8, plsSem: 0.3, multilevel: 0.8, irt: 0.5, qualitative: 0.3 },
-    details: { method: "SEM / CFA / Network / Longitudinal / ESM", policy: "Values longitudinal, ESM, and diary designs for personality processes. Multi-study for replicability. Network approaches growing." },
+    details: { method: "SEM / CFA / Network / Longitudinal / ESM", policy: "Values longitudinal, ESM, and diary designs for personality processes. Multi-study for replicability. Network approaches growing.",
+      framingTip: "Frame als Beitrag zu Persönlichkeitsprozessen und -dynamiken. ESM/Diary-Daten oder Längsschnitt-Designs sind ein starkes Plus. Registered Reports werden unterstützt." },
     tags: ["personality", "traits", "network", "assessment", "individual-differences", "well-being", "development", "dynamics", "diary", "processes"]
   },
   {
@@ -118,7 +131,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.frontiersin.org/journals/psychology",
     impactFactor: 2.6, jcrYear: 2023, vhb: "C", category: "General",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.8, crossSectional: 0.8, longitudinal: 0.5, experimental: 0.8, panel: 0.5, esm: 0.5, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.8, plsSem: 0.5, multilevel: 0.5, irt: 0.5, qualitative: 0.8 },
-    details: { method: "Diverse (SEM, CFA, Network, Regression, Qualitative)", policy: "Open Access mega-journal. No design or method preference. High volume, broad scope. Quant. Psych. section welcomes psychometric methods." },
+    details: { method: "Diverse (SEM, CFA, Network, Regression, Qualitative)", policy: "Open Access mega-journal. No design or method preference. High volume, broad scope. Quant. Psych. section welcomes psychometric methods.",
+      framingTip: "Wähle die passende Section (z.B. Quantitative Psychology, Health Psychology). Solide empirische Arbeit reicht — keine bahnbrechende Innovation nötig. Open-Access-Gebühren einplanen." },
     tags: ["general", "well-being", "personality", "assessment", "financial", "fwb", "open-access", "clinical", "cognitive", "developmental", "organizational", "health"]
   },
   {
@@ -126,7 +140,8 @@ const JOURNAL_DATABASE = [
     url: "https://onlinelibrary.wiley.com/journal/14706431",
     impactFactor: 8.6, jcrYear: 2023, vhb: "C", category: "Consumer",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.5, crossSectional: 0.8, longitudinal: 0.3, experimental: 0.5, panel: 0.3, esm: 0.3, network: 0.3, sem: 0.8, cfa: 0.8, regression: 0.8, plsSem: 0.8, multilevel: 0.3, irt: 0.3, qualitative: 0.5 },
-    details: { method: "PLS-SEM / CB-SEM / Survey", policy: "Cross-sectional survey with SEM is standard. Two-step approach (CFA then SEM) dominates. International perspective valued." },
+    details: { method: "PLS-SEM / CB-SEM / Survey", policy: "Cross-sectional survey with SEM is standard. Two-step approach (CFA then SEM) dominates. International perspective valued.",
+      framingTip: "Nutze den Two-Step-Approach (CFA → Strukturmodell). Internationale oder cross-kulturelle Stichproben sind ein Plus. PLS-SEM ist hier besonders willkommen." },
     tags: ["consumer", "financial", "fwb", "well-being", "international", "behavior", "household", "sustainability", "food", "digital"]
   },
   {
@@ -134,7 +149,8 @@ const JOURNAL_DATABASE = [
     url: "https://link.springer.com/journal/11205",
     impactFactor: 3.1, jcrYear: 2023, vhb: "B", category: "Well-being",
     traits: { multiStudy: 0.3, twoStudy: 0.3, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.5, crossSectional: 0.8, longitudinal: 0.5, experimental: 0.3, panel: 0.8, esm: 0.3, network: 0.3, sem: 0.8, cfa: 0.5, regression: 0.8, plsSem: 0.3, multilevel: 0.8, irt: 0.3, qualitative: 0.5 },
-    details: { method: "SEM / Regression / Multilevel / Panel", policy: "Broad well-being and quality-of-life scope. Cross-national and panel studies valued. SEM and regression dominant." },
+    details: { method: "SEM / Regression / Multilevel / Panel", policy: "Broad well-being and quality-of-life scope. Cross-national and panel studies valued. SEM and regression dominant.",
+      framingTip: "Cross-nationale Vergleiche und soziale Indikatoren betonen. Nutze Panel-Daten (SOEP, ESS, WVS) wenn möglich. Multilevel-Modelle für Ländervergleiche ideal." },
     tags: ["well-being", "quality-of-life", "social", "indicators", "financial", "fwb", "cross-cultural", "inequality", "poverty", "policy"]
   },
   {
@@ -142,7 +158,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.sciencedirect.com/journal/journal-of-research-in-personality",
     impactFactor: 2.8, jcrYear: 2023, vhb: "B", category: "Personality",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.8, experimental: 0.5, panel: 0.5, esm: 0.8, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.8, plsSem: 0.3, multilevel: 0.8, irt: 0.5, qualitative: 0.3 },
-    details: { method: "SEM / CFA / Longitudinal / Network / ESM", policy: "Strong tradition of longitudinal and ESM personality research. Values personality dynamics and processes." },
+    details: { method: "SEM / CFA / Longitudinal / Network / ESM", policy: "Strong tradition of longitudinal and ESM personality research. Values personality dynamics and processes.",
+      framingTip: "Längsschnitt- oder ESM-Daten sind hier besonders stark. Frame als Persönlichkeitsdynamik oder -entwicklung. Große Stichproben (N>400) und robuste Designs erwünscht." },
     tags: ["personality", "traits", "individual-differences", "well-being", "longitudinal", "assessment", "development", "goals", "identity", "narratives"]
   },
   {
@@ -150,7 +167,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.sciencedirect.com/journal/journal-of-behavioral-and-experimental-finance",
     impactFactor: 4.3, jcrYear: 2023, vhb: "C", category: "Finance",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.8, longitudinal: 0.5, experimental: 0.8, panel: 0.5, esm: 0.3, network: 0.3, sem: 0.5, cfa: 0.3, regression: 0.8, plsSem: 0.3, multilevel: 0.5, irt: 0.3, qualitative: 0.3 },
-    details: { method: "Experimental / Regression / SEM", policy: "Behavioral finance meets psychology. Financial decision-making and financial literacy focus. Experiments and surveys both accepted." },
+    details: { method: "Experimental / Regression / SEM", policy: "Behavioral finance meets psychology. Financial decision-making and financial literacy focus. Experiments and surveys both accepted.",
+      framingTip: "Verbinde psychologische Konstrukte mit Finanzverhalten. Experimentelle Designs oder Survey-Daten zu Finanzentscheidungen. Behavioral-Finance-Literatur als Rahmen nutzen." },
     tags: ["financial", "fwb", "behavioral", "finance", "decision-making", "literacy", "experimental", "investment", "risk", "stock-market"]
   },
   {
@@ -158,7 +176,8 @@ const JOURNAL_DATABASE = [
     url: "https://link.springer.com/journal/10834",
     impactFactor: 2.4, jcrYear: 2023, vhb: "C", category: "Economics",
     traits: { multiStudy: 0.3, twoStudy: 0.3, singleStudy: 0.8, metaAnalysis: 0.3, mixedMethods: 0.5, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.3, panel: 0.8, esm: 0.3, network: 0.3, sem: 0.8, cfa: 0.3, regression: 0.8, plsSem: 0.3, multilevel: 0.5, irt: 0.3, qualitative: 0.5 },
-    details: { method: "SEM / Regression / Panel Data", policy: "Family financial well-being focus. Publishes FWB, financial stress, and economic hardship research. Panel surveys valued." },
+    details: { method: "SEM / Regression / Panel Data", policy: "Family financial well-being focus. Publishes FWB, financial stress, and economic hardship research. Panel surveys valued.",
+      framingTip: "Verbinde finanzielle Themen mit dem Familienkontext (Stress, Erziehung, Partnerschaft). Panel-Daten (NLSY, PSID, SOEP) sind ideal. Praxisimplikationen für Familienberatung einbauen." },
     tags: ["family", "financial", "fwb", "well-being", "economic", "stress", "household", "parenting", "marriage", "work-family"]
   },
   {
@@ -166,7 +185,8 @@ const JOURNAL_DATABASE = [
     url: "https://link.springer.com/journal/13428",
     impactFactor: 4.6, jcrYear: 2023, vhb: "B", category: "Methods",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.5, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.5, panel: 0.5, esm: 0.5, network: 0.8, sem: 0.8, cfa: 0.5, regression: 0.5, plsSem: 0.3, multilevel: 0.5, irt: 0.8, qualitative: 0.3 },
-    details: { method: "Network / SEM / IRT / Software Tutorials", policy: "Methods and tools for behavioral research. Software tutorials (R packages) highly valued. Network and SEM tool papers common." },
+    details: { method: "Network / SEM / IRT / Software Tutorials", policy: "Methods and tools for behavioral research. Software tutorials (R packages) highly valued. Network and SEM tool papers common.",
+      framingTip: "Ideal wenn du ein R-Package oder Software-Tool vorstellst. Tutorial-Artikel mit anwendbarem Code sind sehr gefragt. Auch methodische Vergleichsstudien passen gut." },
     tags: ["methods", "statistics", "network", "software", "modeling", "psychometrics", "tools", "eye-tracking", "reaction-time", "experimental"]
   },
   {
@@ -174,7 +194,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.tandfonline.com/journals/hsem20",
     impactFactor: 2.4, jcrYear: 2023, vhb: "B", category: "Methods",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.5, metaAnalysis: 0.5, mixedMethods: 0.3, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.5, panel: 0.5, esm: 0.3, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.5, plsSem: 0.5, multilevel: 0.8, irt: 0.5, qualitative: 0.3 },
-    details: { method: "SEM / CFA / Measurement Invariance / Multilevel", policy: "The dedicated SEM journal. Methodological SEM advances and substantive applications. CFA methodology central." },
+    details: { method: "SEM / CFA / Measurement Invariance / Multilevel", policy: "The dedicated SEM journal. Methodological SEM advances and substantive applications. CFA methodology central.",
+      framingTip: "Entweder methodische SEM-Innovation oder eine substanzielle Anwendung, die SEM-spezifische Fragen adressiert. Measurement Invariance, Mediationsanalyse oder Modellvergleiche sind ideal." },
     tags: ["sem", "methods", "statistics", "cfa", "measurement", "invariance", "modeling", "latent", "mediation", "moderation"]
   },
   {
@@ -182,7 +203,8 @@ const JOURNAL_DATABASE = [
     url: "https://link.springer.com/journal/12144",
     impactFactor: 2.5, jcrYear: 2023, vhb: "C", category: "General",
     traits: { multiStudy: 0.3, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.5, crossSectional: 0.8, longitudinal: 0.3, experimental: 0.5, panel: 0.3, esm: 0.3, network: 0.5, sem: 0.8, cfa: 0.8, regression: 0.8, plsSem: 0.5, multilevel: 0.5, irt: 0.3, qualitative: 0.5 },
-    details: { method: "SEM / CFA / Network / Regression", policy: "Broad psychology scope. High volume, relatively fast review. Accepts network, SEM, and CFA papers across topics." },
+    details: { method: "SEM / CFA / Network / Regression", policy: "Broad psychology scope. High volume, relatively fast review. Accepts network, SEM, and CFA papers across topics.",
+      framingTip: "Guter Einstieg für erste Publikationen. Cross-sektionales Design mit SEM/CFA reicht. Breites Themenspektrum — Paper muss nicht hochspezialisiert sein. Schneller Review-Prozess." },
     tags: ["general", "well-being", "personality", "fwb", "financial", "network", "assessment", "anxiety", "depression", "resilience", "stress"]
   },
   {
@@ -190,7 +212,8 @@ const JOURNAL_DATABASE = [
     url: "https://iaap-journals.onlinelibrary.wiley.com/journal/14640597",
     impactFactor: 4.9, jcrYear: 2023, vhb: "B", category: "Applied",
     traits: { multiStudy: 0.5, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.8, mixedMethods: 0.5, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.5, panel: 0.5, esm: 0.5, network: 0.3, sem: 0.8, cfa: 0.5, regression: 0.8, plsSem: 0.3, multilevel: 0.8, irt: 0.3, qualitative: 0.5 },
-    details: { method: "SEM / Regression / Multilevel / Meta-Analysis", policy: "Applied psychology across work, health, and consumer domains. International samples valued. Meta-analyses welcome." },
+    details: { method: "SEM / Regression / Multilevel / Meta-Analysis", policy: "Applied psychology across work, health, and consumer domains. International samples valued. Meta-analyses welcome.",
+      framingTip: "Betone die angewandte Relevanz — wie hilft die Forschung in der Praxis? Internationale Stichproben sind ein Muss. Meta-Analysen und Multilevel-Designs besonders willkommen." },
     tags: ["applied", "well-being", "work", "health", "financial", "cross-cultural", "consumer", "organizational", "occupational", "clinical"]
   },
   {
@@ -198,7 +221,8 @@ const JOURNAL_DATABASE = [
     url: "https://connect.springerpub.com/content/sgrjfcp",
     impactFactor: 1.8, jcrYear: 2023, vhb: "C", category: "Finance",
     traits: { multiStudy: 0.3, twoStudy: 0.3, singleStudy: 0.8, metaAnalysis: 0.3, mixedMethods: 0.5, crossSectional: 0.5, longitudinal: 0.5, experimental: 0.3, panel: 0.5, esm: 0.3, network: 0.3, sem: 0.5, cfa: 0.3, regression: 0.8, plsSem: 0.3, multilevel: 0.3, irt: 0.3, qualitative: 0.5 },
-    details: { method: "Regression / SEM / Survey / Qualitative", policy: "Core FWB journal. Financial counseling, planning, and well-being. Practitioner-relevant research valued." },
+    details: { method: "Regression / SEM / Survey / Qualitative", policy: "Core FWB journal. Financial counseling, planning, and well-being. Practitioner-relevant research valued.",
+      framingTip: "Starker Praxisbezug nötig — was bedeuten die Ergebnisse für Finanzberater? Qualitative oder Mixed-Methods-Ansätze willkommen. Auch kleinere Stichproben akzeptiert." },
     tags: ["financial", "fwb", "well-being", "counseling", "planning", "literacy", "household", "retirement", "debt", "budgeting"]
   },
   {
@@ -206,7 +230,8 @@ const JOURNAL_DATABASE = [
     url: "https://www.internationaljournalofwellbeing.org",
     impactFactor: 2.0, jcrYear: 2023, vhb: "C", category: "Well-being",
     traits: { multiStudy: 0.3, twoStudy: 0.5, singleStudy: 0.8, metaAnalysis: 0.5, mixedMethods: 0.8, crossSectional: 0.8, longitudinal: 0.5, experimental: 0.5, panel: 0.5, esm: 0.3, network: 0.3, sem: 0.8, cfa: 0.5, regression: 0.8, plsSem: 0.3, multilevel: 0.5, irt: 0.3, qualitative: 0.8 },
-    details: { method: "SEM / Regression / Mixed Methods / Qualitative", policy: "Open access. Dedicated to well-being research across domains. Interdisciplinary and qualitative approaches welcome." },
+    details: { method: "SEM / Regression / Mixed Methods / Qualitative", policy: "Open access. Dedicated to well-being research across domains. Interdisciplinary and qualitative approaches welcome.",
+      framingTip: "Interdisziplinäres Framing stärkt das Paper. Qualitative oder Mixed-Methods-Ansätze sind ein Alleinstellungsmerkmal. Open Access ohne Gebühren — ideal für Sichtbarkeit." },
     tags: ["well-being", "happiness", "fwb", "financial", "positive-psychology", "quality-of-life", "open-access", "flourishing", "meaning", "community"]
   }
 ];
@@ -391,6 +416,8 @@ export default function App() {
 
         {results.length > 0 && (
           <>
+            <ScoreInfo />
+
             <p className="text-xs text-slate-400 text-center mb-6">
               {results.length} Journals gefunden &middot; Impact Factors: JCR 2023 &middot; Rankings: VHB-JOURQUAL 3
             </p>
@@ -430,9 +457,15 @@ export default function App() {
                       <FitStat label="Methode" score={journal.scores.method} />
                       <FitStat label="Datenart" score={journal.scores.data} />
                     </div>
-                    <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 flex items-start gap-4">
-                      <Info className="text-indigo-400 shrink-0" size={20} />
-                      <p className="text-sm text-slate-600 italic">"{journal.details.policy} Typical methods: {journal.details.method}."</p>
+                    <div className="space-y-3">
+                      <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-start gap-3">
+                        <Info className="text-indigo-400 shrink-0 mt-0.5" size={16} />
+                        <p className="text-sm text-slate-600"><span className="font-bold text-slate-700">Editorial:</span> {journal.details.policy} <span className="text-slate-400">Methoden: {journal.details.method}.</span></p>
+                      </div>
+                      <div className="bg-amber-50 p-5 rounded-2xl border border-amber-100 flex items-start gap-3">
+                        <Lightbulb className="text-amber-500 shrink-0 mt-0.5" size={16} />
+                        <p className="text-sm text-amber-900"><span className="font-bold">Framing-Tipp:</span> {journal.details.framingTip}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -465,6 +498,52 @@ function FitStat({ label, score }) {
       <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
         <div className={`${color.bar} h-full transition-all duration-1000`} style={{ width: `${score}%` }} />
       </div>
+    </div>
+  );
+}
+
+function ScoreInfo() {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mb-6">
+      <button onClick={() => setOpen(!open)} className="flex items-center gap-2 mx-auto text-xs text-slate-400 hover:text-slate-600 transition-colors">
+        <HelpCircle size={14} />
+        <span className="font-bold">Wie werden die Scores berechnet?</span>
+        {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+      {open && (
+        <div className="mt-4 bg-white rounded-2xl border border-slate-200 p-6 max-w-3xl mx-auto text-sm text-slate-600 space-y-3">
+          <p className="font-bold text-slate-800">Match Index = gewichteter Durchschnitt aus 4 Dimensionen:</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
+              <div className="text-lg font-black text-indigo-600">35%</div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase">Keywords</div>
+              <p className="text-[11px] mt-1">Anteil deiner Keywords, die in den Journal-Tags oder im Namen matchen.</p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
+              <div className="text-lg font-black text-indigo-600">20%</div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase">Design</div>
+              <p className="text-[11px] mt-1">Wie gut dein Design zum Journal passt. Multi-Study ist nie ein Nachteil (min. 50%).</p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
+              <div className="text-lg font-black text-indigo-600">25%</div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase">Methode</div>
+              <p className="text-[11px] mt-1">Wie häufig deine Methode im Journal publiziert wird (hoch/mittel/niedrig).</p>
+            </div>
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
+              <div className="text-lg font-black text-indigo-600">20%</div>
+              <div className="text-[10px] font-bold text-slate-400 uppercase">Datenart</div>
+              <p className="text-[11px] mt-1">Wie typisch dein Datentyp für das Journal ist.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-6 pt-2 justify-center text-[10px] font-bold text-slate-400">
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" /> ≥70% Hoch</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block" /> 40-69% Mittel</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-red-400 inline-block" /> &lt;40% Niedrig</span>
+          </div>
+          <p className="text-[11px] text-slate-400 text-center">Trait-Werte basieren auf Aims & Scope, Author Guidelines und Publikationsmustern 2023-2025. Stufen: 0.8 (hoch) / 0.5 (mittel) / 0.3 (niedrig).</p>
+        </div>
+      )}
     </div>
   );
 }
