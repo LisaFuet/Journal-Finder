@@ -285,11 +285,11 @@ const TRAIT_MAP = {
     "Qualitative": "qualitative"
   },
   dataType: {
-    "Cross-Sectional": "crossSectional",
-    "Longitudinal": "longitudinal",
-    "Experimental": "experimental",
-    "Panel Data": "panel",
-    "Experience Sampling / Diary": "esm"
+    "Cross-Sectional": ["Cross-Sectional", "Empirisch (cross-sect.)"],
+    "Longitudinal": ["Longitudinal", "Empirisch (longitudinal)"],
+    "Experimental": ["Experimental"],
+    "Panel Data": ["Panel"],
+    "Experience Sampling / Diary": ["ESM/Diary"]
   }
 };
 
@@ -327,7 +327,7 @@ export default function App() {
     const { keywords, design: appliedDesign, method: appliedMethod, dataType: appliedDataType } = appliedCriteria;
     const designTrait = TRAIT_MAP.design[appliedDesign];
     const methodTrait = TRAIT_MAP.method[appliedMethod];
-    const dataTrait = TRAIT_MAP.dataType[appliedDataType];
+    const dataProfileKeys = TRAIT_MAP.dataType[appliedDataType];
 
     return JOURNAL_DATABASE.map(journal => {
       // 1. Topic Fit
@@ -350,9 +350,13 @@ export default function App() {
         designScore = (journal.traits[designTrait] ?? 0.5) * 100;
       }
 
-      // 3. Method + Data Fit
+      // 3. Method Fit
       const methodScore = (journal.traits[methodTrait] ?? 0.5) * 100;
-      const dataScore = (journal.traits[dataTrait] ?? 0.5) * 100;
+
+      // 4. Data Fit -- direkt aus Publikationsprofil abgeleitet
+      const profile = DATA_PROFILES[journal.id] || {};
+      const profilePct = dataProfileKeys.reduce((sum, key) => sum + (profile[key] || 0), 0);
+      const dataScore = profilePct >= 40 ? 80 : profilePct >= 15 ? 50 : 30;
 
       const totalScore = Math.round((topicScore * 0.35) + (designScore * 0.20) + (methodScore * 0.25) + (dataScore * 0.20));
 
@@ -537,6 +541,7 @@ function DataFitStat({ score, profile }) {
   const [open, setOpen] = useState(false);
   const sorted = profile ? Object.entries(profile).sort((a, b) => b[1] - a[1]) : [];
   const barColors = ["bg-indigo-500", "bg-indigo-400", "bg-indigo-300", "bg-slate-300", "bg-slate-200", "bg-slate-100"];
+  const label = score >= 70 ? "hoch" : score >= 40 ? "mittel" : "niedrig";
 
   return (
     <div className="space-y-2">
@@ -544,7 +549,7 @@ function DataFitStat({ score, profile }) {
         <button onClick={() => setOpen(!open)} className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1 hover:text-indigo-600 transition-colors">
           Datenart {open ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
         </button>
-        <span className={`text-xs font-black ${color.text}`}>{Math.round(score)}%</span>
+        <span className={`text-xs font-black ${color.text}`}>{label}</span>
       </div>
       <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
         <div className={`${color.bar} h-full transition-all duration-1000`} style={{ width: `${score}%` }} />
@@ -563,7 +568,7 @@ function DataFitStat({ score, profile }) {
               </div>
             ))}
           </div>
-          <p className="text-[8px] text-slate-400 mt-2 italic">Basierend auf Editorial-Profil und Publikationsmustern. Keine exakte Auszählung.</p>
+          <p className="text-[8px] text-slate-400 mt-2 italic">≥40% → hoch · 15-39% → mittel · &lt;15% → niedrig. Basierend auf Publikationsmustern, keine exakte Auszählung.</p>
         </div>
       )}
     </div>
